@@ -66,7 +66,3 @@ The Random Forest and Decision Tree classifiers achieved the highest accuracy of
 - [Kaggle Titanic Journey](https://www.kaggle.com/omarelgabry/titanic/a-journey-through-titanic)
 - [Random Forest Starter](https://www.kaggle.com/c/titanic/details/getting-started-with-random-forests)
 - [Best Working Classifier](https://www.kaggle.com/sinakhorami/titanic/titanic-best-working-classifier)
-
-## License
-
-This project is licensed under the MIT License.
