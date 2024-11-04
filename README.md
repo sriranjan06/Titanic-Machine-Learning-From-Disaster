@@ -1,68 +1,71 @@
-# Titanic - Machine Learning from Disaster
+# CSE 572 Data Mining Homework 2
 
-This project is part of the CSE 572 Data Mining Course Homework 1, where we apply various machine learning models to predict the survival of passengers on the Titanic based on their characteristics.
+## Dataset Overview
+The Titanic dataset provides details of passengers aboard the RMS Titanic, including attributes such as `Age`, `Sex`, `Fare`, `Pclass` (passenger class), and `Embarked` (port of embarkation). The goal is to predict whether a passenger survived or not. The code is in the `Homework-2-Titanic-DM.ipynb` file.
 
-This project uses the famous [Titanic dataset](https://www.kaggle.com/c/titanic/data) to predict the survival of passengers. The dataset includes features such as age, gender, class, and more. We preprocess the data and apply multiple machine learning models to predict the survival rate of passengers.
+## Preprocessing Steps
 
-## Models and Accuracy Scores
+### 1. Handling Missing Values
+Several columns in the Titanic dataset contain missing values. To address this:
+   - **Age**: Filled missing values with the median value.
+   - **Cabin**: Dropped due to a large number of missing entries.
+   - **Embarked**: Filled missing values with the mode (most frequent value).
 
-After applying the preprocessing steps and training multiple machine learning models, the following accuracy scores were achieved:
+```python
+# Fill missing values in 'Age' with the median
+data['Age'] = data['Age'].fillna(data['Age'].median())
 
-| Model                      | Score  |
-|-----------------------------|--------|
-| Random Forest               | 86.76% |
-| Decision Tree               | 86.76% |
-| K-Nearest Neighbors (KNN)   | 83.84% |
-| Logistic Regression         | 80.36% |
-| Linear SVC                  | 78.90% |
-| Perceptron                  | 78.34% |
-| Support Vector Machines     | 78.23% |
-| Stochastic Gradient Descent | 75.76% |
-| Naive Bayes                 | 72.28% |
+# Drop the 'Cabin' column due to too many missing values
+data = data.drop(columns=['Cabin'])
 
-## Data Preprocessing
+# Fill missing values in 'Embarked' with the mode
+data['Embarked'] = data['Embarked'].fillna(data['Embarked'].mode()[0])
+```
 
-The following data preprocessing steps were applied:
+### 2. Encoding Categorical Variables
+To make categorical variables usable for machine learning models:
+   - **Sex**: Encoded as binary values (0 for male, 1 for female).
+   - **Embarked**: One-hot encoded to create separate columns for each port (`Embarked_Q`, `Embarked_S`), excluding the base category (`Embarked_C`).
 
-1. **Data Cleaning**: 
-   - Missing values in `Age` were filled with median values based on `Sex` and `Pclass`.
-   - Missing values in `Embarked` and `Fare` were filled with the most frequent and median values, respectively.
-   
-2. **Feature Engineering**:
-   - Created a `Title` feature from the `Name` column, which represents social status.
-   - Engineered `FamilySize` and `IsAlone` features from the `SibSp` and `Parch` columns.
-   - Combined `Age` and `Pclass` to create the `Age*Class` feature.
+```python
+# Encode 'Sex' as binary values
+data['Sex'] = data['Sex'].map({'male': 0, 'female': 1})
 
-3. **Discretization**:
-   - Discretized `Age` and `Fare` into bins for better model performance.
+# One-hot encode 'Embarked' column
+data = pd.get_dummies(data, columns=['Embarked'], drop_first=True)
+```
 
-4. **Encoding**:
-   - Categorical features like `Sex`, `Embarked`, and `Title` were converted into numerical values for machine learning models.
+### 3. Feature Scaling
+To ensure numerical consistency across features, we apply standard scaling:
+   - Scaled numerical features using `StandardScaler` for attributes like `Age` and `Fare`.
 
-5. **Dropping Irrelevant Features**:
-   - Columns like `Ticket`, `Cabin`, `PassengerId`, and `Name` were dropped as they did not contribute significantly to the model's performance.
+```python
+from sklearn.preprocessing import StandardScaler
 
-## Machine Learning Models
+# Define the features to be scaled
+features = ['Pclass', 'Sex', 'Age', 'SibSp', 'Parch', 'Fare', 'Embarked_Q', 'Embarked_S']
+X = data[features]
+scaler = StandardScaler()
+X = scaler.fit_transform(X)
+```
 
-The following machine learning models were trained on the processed dataset:
+### 4. Splitting Data
+We split the data into training and validation sets for model evaluation.
 
-- **Logistic Regression**
-- **Support Vector Machines (SVC and LinearSVC)**
-- **K-Nearest Neighbors (KNN)**
-- **Random Forest Classifier**
-- **Decision Tree Classifier**
-- **Naive Bayes**
-- **Perceptron**
-- **Stochastic Gradient Descent (SGD)**
+```python
+from sklearn.model_selection import train_test_split
 
-## Results
+# Define target variable
+y = data['Survived']
+X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)
+```
 
-The Random Forest and Decision Tree classifiers achieved the highest accuracy of 86.76%. K-Nearest Neighbors also performed well, with an accuracy of 83.84%. 
+## Dependencies
+This code requires the following libraries:
+- `pandas`
+- `scikit-learn`
 
-## References
-
-- [Kaggle Titanic Data](https://www.kaggle.com/c/titanic/data)
-- [Kaggle Titanic Data Science Solutions](https://www.kaggle.com/code/preejababu/titanic-data-science-solutions)
-- [Kaggle Titanic Journey](https://www.kaggle.com/omarelgabry/titanic/a-journey-through-titanic)
-- [Random Forest Starter](https://www.kaggle.com/c/titanic/details/getting-started-with-random-forests)
-- [Best Working Classifier](https://www.kaggle.com/sinakhorami/titanic/titanic-best-working-classifier)
+To install these dependencies, use:
+```bash
+pip install pandas scikit-learn
+```
